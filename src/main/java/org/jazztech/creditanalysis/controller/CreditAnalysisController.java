@@ -1,16 +1,21 @@
 package org.jazztech.creditanalysis.controller;
 
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jazztech.creditanalysis.controller.request.CreditAnalysisRequest;
 import org.jazztech.creditanalysis.controller.response.CreditAnalysisResponse;
-import org.jazztech.creditanalysis.repository.CreditAnalysisRepository;
 import org.jazztech.creditanalysis.service.create.CreateAnalysisService;
 import org.jazztech.creditanalysis.service.search.SearchAnalysisService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "v1.0/creditanalysis")
@@ -18,7 +23,6 @@ import java.util.UUID;
 public class CreditAnalysisController {
     private final CreateAnalysisService createAnalysisService;
     private final SearchAnalysisService searchAnalysisService;
-    private final CreditAnalysisRepository creditAnalysisRepository;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
