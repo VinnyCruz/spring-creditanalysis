@@ -35,6 +35,14 @@ public record CreditAnalysis (
                 .build();
     }
 
+
+
+
+
+
+
+
+
     public CreditAnalysis returnAnalysisApprovedTrue
             (Boolean approved, BigDecimal approvedlimit,
             BigDecimal withdraw, BigDecimal annualInterest) {
@@ -43,6 +51,12 @@ public record CreditAnalysis (
                 .approvedLimit(approvedlimit)
                 .withdraw(withdraw)
                 .annualInterest(annualInterest)
+                .date(LocalDateTime.now())
+                .build();
+    }
+    public CreditAnalysis returnAnalysisApprovedFalse(Boolean approved) {
+        return this.toBuilder()
+                .approved(approved)
                 .date(LocalDateTime.now())
                 .build();
     }
@@ -59,4 +73,6 @@ public record CreditAnalysis (
                 ", date=" + LocalDateTime.now() +
                 '}';
     }
+
+
 }

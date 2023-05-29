@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2023-05-19T15:49:01-0300",
+    date = "2023-05-23T14:18:44-0300",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17 (Oracle Corporation)"
 )
 @Component
@@ -41,6 +41,37 @@ public class CreditResponseMapperImpl implements CreditResponseMapper {
             annualInterest = creditAnalysis.getAnnualInterest().doubleValue();
         }
         date = creditAnalysis.getDate();
+
+        CreditAnalysisResponse creditAnalysisResponse = new CreditAnalysisResponse( id, clientId, approved, requestedAmount, approvedLimit, withdraw, annualInterest, date );
+
+        return creditAnalysisResponse;
+    }
+
+    @Override
+    public CreditAnalysisResponse mapToResponse(CreditAnalysisEntity entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        UUID id = null;
+        UUID clientId = null;
+        Boolean approved = null;
+        BigDecimal requestedAmount = null;
+        BigDecimal approvedLimit = null;
+        BigDecimal withdraw = null;
+        Double annualInterest = null;
+        LocalDateTime date = null;
+
+        id = entity.getId();
+        clientId = entity.getClientId();
+        approved = entity.getApproved();
+        requestedAmount = entity.getRequestedAmount();
+        approvedLimit = entity.getApprovedLimit();
+        withdraw = entity.getWithdraw();
+        if ( entity.getAnnualInterest() != null ) {
+            annualInterest = entity.getAnnualInterest().doubleValue();
+        }
+        date = entity.getDate();
 
         CreditAnalysisResponse creditAnalysisResponse = new CreditAnalysisResponse( id, clientId, approved, requestedAmount, approvedLimit, withdraw, annualInterest, date );
 
