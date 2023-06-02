@@ -1,5 +1,7 @@
 package org.jazztech.creditanalysis.service.search;
 
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jazztech.creditanalysis.apiclient.ClientApi;
 import org.jazztech.creditanalysis.apiclient.dto.Client;
@@ -11,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
