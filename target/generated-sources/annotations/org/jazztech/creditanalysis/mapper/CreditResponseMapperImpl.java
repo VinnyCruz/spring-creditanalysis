@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2023-05-29T14:29:09-0300",
-    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17 (Oracle Corporation)"
+    date = "2023-06-02T04:03:20-0300",
+    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.7 (Private Build)"
 )
 @Component
 public class CreditResponseMapperImpl implements CreditResponseMapper {

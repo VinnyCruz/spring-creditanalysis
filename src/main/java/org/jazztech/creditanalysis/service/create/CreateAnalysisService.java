@@ -34,9 +34,11 @@ public class CreateAnalysisService {
         try {
             final Client clientOfClientApi = returnClientFoundInClientApi(clientIdThatCameFromRequest);
             final CreditAnalysis analysisWithClientIdUpdated = creditAnalysis
+                    // cuidado com os nomes de metodos, "atualizaIdCliente"
                     .returnAnalysisWithClientId(clientOfClientApi);
             return analysisWithClientIdUpdated;
         } catch (FeignException exception) {
+            // qualquer erro pode lançar esta exceção, cuidado.
             throw new ClientIdNotFoundException("Could not found Client of ClientAPI by Id %s".formatted(clientIdThatCameFromRequest));
         }
     }
@@ -45,9 +47,12 @@ public class CreateAnalysisService {
         final CreditAnalysis pendentAnalysis = checkIfClientExists(creditAnalysisRequest);
         final BigDecimal monthlyIncome = creditAnalysisRequest.monthlyIncome();
         final BigDecimal requestedAmount = creditAnalysisRequest.requestedAmount();
+        // declare proximo a uso
         final boolean approved;
         final BigDecimal approvedlimit;
+        // constante
         final BigDecimal annualInterest = BigDecimal.valueOf(0.15);
+        // constante
         final int limitIncome = 50000;
         final BigDecimal consideredIncome = monthlyIncome.compareTo(BigDecimal.valueOf(limitIncome)) > 0
                 ? BigDecimal.valueOf(limitIncome)
@@ -62,7 +67,9 @@ public class CreateAnalysisService {
             approved = true;
             // define o valor do limite de crédito se o solicitado for maior que 50% da renda,
             // aprova 15% da renda, se não, aprova 30% da renda.
+            // constante
             final BigDecimal limitPercentageIfRequestIsGreaterThanFifthPercent = BigDecimal.valueOf(0.15);
+            // constante
             final BigDecimal limitPercentageIfRequestIsLessThanFifthPercent = BigDecimal.valueOf(0.30);
             if (requestedAmount.compareTo(consideredIncome.multiply(BigDecimal.valueOf(0.5))) > 0) {
                 approvedlimit = consideredIncome.multiply(limitPercentageIfRequestIsGreaterThanFifthPercent);
@@ -93,6 +100,7 @@ public class CreateAnalysisService {
 
     public Client returnClientFoundInClientApi(UUID id) {
         final Client client = clientApi.getClientById(id);
+        //pq consulta o cliente novamente?
         if (clientApi.getClientById(id) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

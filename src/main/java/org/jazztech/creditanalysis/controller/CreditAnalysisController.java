@@ -36,12 +36,14 @@ public class CreditAnalysisController {
         return searchAnalysisService.getAnalysisById(id);
     }
 
+    // aqui o id é obrigatorio na request, é isso mesmo?
     @GetMapping
     @ResponseStatus(HttpStatus.FOUND)
     public List<CreditAnalysisResponse> getAnalysisByClientId(@RequestParam(value = "id") UUID clientId) {
         return searchAnalysisService.getAllAnalsysisByClientId(clientId);
     }
 
+    // não existe um recurso cpf, este é mais um atributo de filtro
     @GetMapping(path = "/cpf")
     @ResponseStatus(HttpStatus.FOUND)
     public List<CreditAnalysisResponse> getAnalysisByClientCpf(@RequestParam(value = "cpf") String clientCpf) {

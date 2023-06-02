@@ -39,6 +39,7 @@ public class SearchAnalysisService {
     public List<CreditAnalysisResponse> getAllAnalsysisByClientCpf(String clientCpf) {
         final List<Client> client = clientApi.getClientByCpf(clientCpf);
         if (client.isEmpty()) {
+            // Aqui lançar o clientNotfound
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return getAllAnalsysisByClientId(client.get(0).id());
