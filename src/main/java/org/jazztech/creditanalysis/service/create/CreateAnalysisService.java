@@ -1,11 +1,14 @@
 package org.jazztech.creditanalysis.service.create;
 
+import feign.FeignException;
+import java.math.BigDecimal;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.jazztech.creditanalysis.apiclient.ClientApi;
 import org.jazztech.creditanalysis.apiclient.dto.Client;
 import org.jazztech.creditanalysis.controller.request.CreditAnalysisRequest;
 import org.jazztech.creditanalysis.controller.response.CreditAnalysisResponse;
+import org.jazztech.creditanalysis.exception.ClientIdNotFoundException;
 import org.jazztech.creditanalysis.mapper.CreditEntityMapper;
 import org.jazztech.creditanalysis.mapper.CreditModelMapper;
 import org.jazztech.creditanalysis.mapper.CreditResponseMapper;
@@ -13,11 +16,8 @@ import org.jazztech.creditanalysis.model.CreditAnalysis;
 import org.jazztech.creditanalysis.repository.CreditAnalysisRepository;
 import org.jazztech.creditanalysis.repository.entity.CreditAnalysisEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,53 +28,49 @@ public class CreateAnalysisService {
     private final CreditEntityMapper creditEntityMapper;
     private final ClientApi clientApi;
 
-    public CreditAnalysis checkIfClientExists (CreditAnalysisRequest creditAnalysisRequest) {
+    public CreditAnalysis checkIfClientExists(CreditAnalysisRequest creditAnalysisRequest) {
         final CreditAnalysis creditAnalysis = creditModelMapper.from(creditAnalysisRequest);
         final UUID clientIdThatCameFromRequest = creditAnalysis.clientId();
-        final Client clientOfClientApi = returnClientFoundInClientApi(clientIdThatCameFromRequest);
-        final CreditAnalysis analysisWithClientIdUpdated = creditAnalysis
-                .returnAnalysisWithClientId(clientOfClientApi);
-        return analysisWithClientIdUpdated;
+        try {
+            final Client clientOfClientApi = returnClientFoundInClientApi(clientIdThatCameFromRequest);
+            final CreditAnalysis analysisWithClientIdUpdated = creditAnalysis
+                    .returnAnalysisWithClientId(clientOfClientApi);
+            return analysisWithClientIdUpdated;
+        } catch (FeignException exception) {
+            throw new ClientIdNotFoundException("Could not found Client of ClientAPI by Id %s".formatted(clientIdThatCameFromRequest));
+        }
     }
 
-    public CreditAnalysis checkIfIsApproved (CreditAnalysisRequest creditAnalysisRequest) {
+    public CreditAnalysis checkIfIsApproved(CreditAnalysisRequest creditAnalysisRequest) {
+        final CreditAnalysis pendentAnalysis = checkIfClientExists(creditAnalysisRequest);
         final BigDecimal monthlyIncome = creditAnalysisRequest.monthlyIncome();
         final BigDecimal requestedAmount = creditAnalysisRequest.requestedAmount();
-        final CreditAnalysis pendentAnalysis = checkIfClientExists(creditAnalysisRequest);
-        final CreditAnalysis creditAnalysed;
-        Boolean approved;
-        final BigDecimal creditLimitApproved;
+        final boolean approved;
         final BigDecimal approvedlimit;
-        final BigDecimal withdraw;
-        final BigDecimal annualInterest;
-        // Op ternário compara renda mensal com 50k e se resultar em maior que a renda mensal,
-        // consideredIncome será 50k, caso não, será a renda mensal.
-        BigDecimal consideredIncome = monthlyIncome.compareTo(BigDecimal.valueOf(50000)) > 0
-                ? BigDecimal.valueOf(50000)
+        final BigDecimal annualInterest = BigDecimal.valueOf(0.15);
+        final int limitIncome = 50000;
+        final BigDecimal consideredIncome = monthlyIncome.compareTo(BigDecimal.valueOf(limitIncome)) > 0
+                ? BigDecimal.valueOf(limitIncome)
                 : monthlyIncome;
         // verifica se requestedAmount é maior que a renda
+        final CreditAnalysis creditAnalysed;
         if (requestedAmount.compareTo(consideredIncome) > 0) {
-            System.out.println("Crédito não aprovado. Valor solicitado é maior que a renda mensal.");
-            creditAnalysed = null;
             approved = false;
-            withdraw = null;
-            annualInterest = null;
+            creditAnalysed = pendentAnalysis
+                    .returnAnalysisApprovedFalse(approved);
         } else {
+            approved = true;
             // define o valor do limite de crédito se o solicitado for maior que 50% da renda,
             // aprova 15% da renda, se não, aprova 30% da renda.
-            final BigDecimal limitPercentage;
+            final BigDecimal limitPercentageIfRequestIsGreaterThanFifthPercent = BigDecimal.valueOf(0.15);
+            final BigDecimal limitPercentageIfRequestIsLessThanFifthPercent = BigDecimal.valueOf(0.30);
             if (requestedAmount.compareTo(consideredIncome.multiply(BigDecimal.valueOf(0.5))) > 0) {
-                limitPercentage = BigDecimal.valueOf(0.15);
+                approvedlimit = consideredIncome.multiply(limitPercentageIfRequestIsGreaterThanFifthPercent);
             } else {
-                limitPercentage = BigDecimal.valueOf(0.3);
+                approvedlimit = consideredIncome.multiply(limitPercentageIfRequestIsLessThanFifthPercent);
             }
-            // Por fim, valor de crédito aprovado.
-            approvedlimit = consideredIncome.multiply(limitPercentage);
-            approved = true;
-            withdraw = approvedlimit.multiply(BigDecimal.valueOf(0.1));
-            annualInterest = BigDecimal.valueOf(0.15);
-
-            creditAnalysed = checkIfClientExists(creditAnalysisRequest)
+            final BigDecimal withdraw = approvedlimit.multiply(BigDecimal.valueOf(0.1));
+            creditAnalysed = pendentAnalysis
                     .returnAnalysisApprovedTrue(approved, approvedlimit, withdraw, annualInterest);
 
         }
