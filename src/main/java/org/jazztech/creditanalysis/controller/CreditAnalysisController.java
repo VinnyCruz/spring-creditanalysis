@@ -31,22 +31,21 @@ public class CreditAnalysisController {
     }
 
     @GetMapping(path = "/{id}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
     public CreditAnalysisResponse getAnalysis(@PathVariable(value = "id") UUID id) {
         return searchAnalysisService.getAnalysisById(id);
     }
 
-    // aqui o id é obrigatorio na request, é isso mesmo?
     @GetMapping
-    @ResponseStatus(HttpStatus.FOUND)
-    public List<CreditAnalysisResponse> getAnalysisByClientId(@RequestParam(value = "id") UUID clientId) {
-        return searchAnalysisService.getAllAnalsysisByClientId(clientId);
-    }
-
-    // não existe um recurso cpf, este é mais um atributo de filtro
-    @GetMapping(path = "/cpf")
-    @ResponseStatus(HttpStatus.FOUND)
-    public List<CreditAnalysisResponse> getAnalysisByClientCpf(@RequestParam(value = "cpf") String clientCpf) {
-        return searchAnalysisService.getAllAnalsysisByClientCpf(clientCpf);
+    @ResponseStatus(HttpStatus.OK)
+    public List<CreditAnalysisResponse> getAnalysisBy(@RequestParam(value = "id", required = false) UUID clientId,
+                                                      @RequestParam(value = "cpf", required = false) String clientCpf) {
+        if (clientId == null && clientCpf == null) {
+            return searchAnalysisService.getAllCreditAnalyses();
+        } else if (clientId == null) {
+            return searchAnalysisService.getAllAnalsysisByClientCpf(clientCpf);
+        } else {
+            return searchAnalysisService.getAllAnalsysisByClientId(clientId);
+        }
     }
 }

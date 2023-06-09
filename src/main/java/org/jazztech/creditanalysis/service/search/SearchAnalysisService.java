@@ -2,10 +2,12 @@ package org.jazztech.creditanalysis.service.search;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.jazztech.creditanalysis.apiclient.ClientApi;
 import org.jazztech.creditanalysis.apiclient.dto.Client;
 import org.jazztech.creditanalysis.controller.response.CreditAnalysisResponse;
+import org.jazztech.creditanalysis.exception.ClientNotFoundException;
 import org.jazztech.creditanalysis.mapper.CreditResponseMapper;
 import org.jazztech.creditanalysis.repository.CreditAnalysisRepository;
 import org.jazztech.creditanalysis.repository.entity.CreditAnalysisEntity;
@@ -28,6 +30,15 @@ public class SearchAnalysisService {
         return creditResponseMapper.from(creditAnalysisEntity);
     }
 
+    public List<CreditAnalysisResponse> getAllCreditAnalyses() {
+        final List<CreditAnalysisEntity> creditAnalyses;
+        creditAnalyses = creditAnalysisRepository.findAll();
+        return creditAnalyses
+                .stream()
+                .map(creditResponseMapper::from)
+                .collect(Collectors.toList());
+    }
+
     public List<CreditAnalysisResponse> getAllAnalsysisByClientId(UUID clientId) {
         final List<CreditAnalysisEntity> entityAnalysisList;
         entityAnalysisList = creditAnalysisRepository.findByClientId(clientId);
@@ -39,8 +50,7 @@ public class SearchAnalysisService {
     public List<CreditAnalysisResponse> getAllAnalsysisByClientCpf(String clientCpf) {
         final List<Client> client = clientApi.getClientByCpf(clientCpf);
         if (client.isEmpty()) {
-            // Aqui lançar o clientNotfound
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ClientNotFoundException("Could not found any Client with the CPF: %s".formatted(clientCpf));
         }
         return getAllAnalsysisByClientId(client.get(0).id());
     }

@@ -28,7 +28,7 @@ public record CreditAnalysis(
         this.date = LocalDateTime.now();
     }
 
-    public CreditAnalysis returnAnalysisWithClientId(Client client) {
+    public CreditAnalysis updateClientId(Client client) {
         return this.toBuilder()
                 .clientId(client.id())
                 .build();
