@@ -15,7 +15,7 @@ public class ControlExceptionHandler {
 
     @ExceptionHandler
     public ProblemDetail clientNotFoundExceptionHandler(ClientNotFoundException e) {
-        final ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        final ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         problemDetail.setType(URI.create(""));
         problemDetail.setProperty(TIMESTAMP, LocalDateTime.now());
         problemDetail.setDetail(e.getMessage());

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Builder;
-import org.jazztech.creditanalysis.apiclient.dto.Client;
 
 public record CreditAnalysis(
     UUID clientId,
@@ -28,15 +27,8 @@ public record CreditAnalysis(
         this.date = LocalDateTime.now();
     }
 
-    public CreditAnalysis updateClientId(Client client) {
-        return this.toBuilder()
-                .clientId(client.id())
-                .build();
-    }
-
-
-    public CreditAnalysis returnAnalysisApprovedTrue(Boolean approved, BigDecimal approvedlimit,
-                                                     BigDecimal withdraw, BigDecimal annualInterest) {
+    public CreditAnalysis analysisApprovedTrue(Boolean approved, BigDecimal approvedlimit,
+                                               BigDecimal withdraw, BigDecimal annualInterest) {
         return this.toBuilder()
                 .approved(approved)
                 .approvedLimit(approvedlimit)
@@ -46,7 +38,7 @@ public record CreditAnalysis(
                 .build();
     }
 
-    public CreditAnalysis returnAnalysisApprovedFalse(Boolean approved) {
+    public CreditAnalysis analysisApprovedFalse(Boolean approved) {
         return this.toBuilder()
                 .approved(approved)
                 .date(LocalDateTime.now())
