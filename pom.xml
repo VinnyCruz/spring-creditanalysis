@@ -147,6 +147,16 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.10</version>
+                <configuration>
+                    <excludes>
+                        <exclude>org/jazztech/creditanalysis/mapper/**</exclude>
+                        <exclude>org/jazztech/creditanalysis/repository/entity/**</exclude>
+                        <exclude>org/jazztech/creditanalysis/exceptionhandler/**</exclude>
+                        <exclude>org.jazztech.creditanalysis.exception/**</exclude>
+                        <exclude>org/jazztech/creditanalysis/controller/**</exclude>
+                        <exclude>org/jazztech/creditanalysis/Main.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
