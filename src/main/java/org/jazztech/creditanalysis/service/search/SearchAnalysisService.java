@@ -48,10 +48,10 @@ public class SearchAnalysisService {
     }
 
     public List<CreditAnalysisResponse> getAllAnalsysisByClientCpf(String clientCpf) {
-        final List<Client> client = clientApi.getClientByCpf(clientCpf);
-        if (client.isEmpty()) {
+        final List<Client> clients = clientApi.getClientByCpf(clientCpf);
+        if (clients.isEmpty()) {
             throw new ClientNotFoundException("Could not found any Client with the CPF: %s".formatted(clientCpf));
         }
-        return getAllAnalsysisByClientId(client.get(0).id());
+        return getAllAnalsysisByClientId(clients.get(0).id());
     }
 }

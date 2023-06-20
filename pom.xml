@@ -154,6 +154,7 @@
                         <exclude>org/jazztech/creditanalysis/exceptionhandler/**</exclude>
                         <exclude>org.jazztech.creditanalysis.exception/**</exclude>
                         <exclude>org/jazztech/creditanalysis/controller/**</exclude>
+                        <exclude>org/jazztech/creditanalysis/Main.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>

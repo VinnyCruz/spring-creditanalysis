@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.jazztech.creditanalysis.controller.response.CreditAnalysisResponse;
 import org.jazztech.creditanalysis.mapper.CreditEntityMapperImpl;
 import org.jazztech.creditanalysis.mapper.CreditModelMapperImpl;
 import org.jazztech.creditanalysis.mapper.CreditResponseMapperImpl;
 import org.jazztech.creditanalysis.model.CreditAnalysis;
+import org.jazztech.creditanalysis.repository.entity.CreditAnalysisEntity;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.*;
 import java.math.BigDecimal;
@@ -49,12 +53,11 @@ class CreateAnalysisServiceTest {
     @Spy
     private CreditEntityMapper creditEntityMapper = new CreditEntityMapperImpl();
 
+    @Spy
+    private Factory factory;
+
     @Captor
     private ArgumentCaptor<UUID> clientIdCaptor;
-    @Captor
-    private ArgumentCaptor<String> clientCpfCaptor;
-    @Captor
-    private ArgumentCaptor<UUID> analysisId;
 
     @Test
     void should_disapprove_credit_analysis_request() {
@@ -81,5 +84,37 @@ class CreateAnalysisServiceTest {
         CreditAnalysis approvedAnalysis = service.approveOrDisapproveAnalysis(request);
         assertEquals(true, approvedAnalysis.approved());
         assertEquals(new BigDecimal(3000).setScale(2, RoundingMode.DOWN), approvedAnalysis.approvedLimit().setScale(2, RoundingMode.DOWN));
+    }
+
+    @Test
+    void should_approve_credit_analysis_if_request_is_less_than_fifth_percent() {
+        final Client client = new Client(UUID.randomUUID());
+        when(clientApi.getClientById(clientIdCaptor.capture())).thenReturn(client);
+        CreditAnalysisRequest request = CreditAnalysisRequest.builder()
+                .clientId(client.id())
+                .monthlyIncome(new BigDecimal(20000))
+                .requestedAmount(new BigDecimal(9000))
+                .build();
+        CreditAnalysis approvedAnalysis = service.approveOrDisapproveAnalysis(request);
+        assertEquals(true, approvedAnalysis.approved());
+        assertEquals(new BigDecimal(6000).setScale(2, RoundingMode.DOWN), approvedAnalysis.approvedLimit().setScale(2, RoundingMode.DOWN));
+    }
+
+    @Test
+    void should_create_credit_analysis_sucessfully() {
+        final Client client = new Client(UUID.randomUUID());
+        when(clientApi.getClientById(clientIdCaptor.capture())).thenReturn(client);
+        when(creditAnalysisRepository.save(Mockito.any(CreditAnalysisEntity.class))).thenAnswer(invocation -> {
+            return entityFactory();
+        });
+        CreditAnalysisResponse response = service.createAnalysisRequest(factory.requestFactory());
+
+        assertEquals(true, response.approved());
+        assertNotNull(response.id());
+
+    }
+
+    public CreditAnalysisEntity entityFactory() {
+        return creditEntityMapper.from(service.approveOrDisapproveAnalysis(factory.requestFactory()));
     }
 }

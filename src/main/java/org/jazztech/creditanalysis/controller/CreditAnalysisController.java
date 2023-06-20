@@ -27,7 +27,7 @@ public class CreditAnalysisController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CreditAnalysisResponse requestAnalysis(@RequestBody CreditAnalysisRequest creditAnalysisRequest) {
-        return createAnalysisService.makeAnalysisRequest(creditAnalysisRequest);
+        return createAnalysisService.createAnalysisRequest(creditAnalysisRequest);
     }
 
     @GetMapping(path = "/{id}")
